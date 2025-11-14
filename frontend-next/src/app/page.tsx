@@ -1,66 +1,65 @@
 import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div>
+      {/* Hero Section */}
+      <section className="bg-blue-600 text-white text-center py-20">
+        <div className="max-w-4xl mx-auto px-4">
+          <h1 className="text-4xl lg:text-5xl font-bold">
+            Welcome to My Next.js App
+          </h1>
+          <p className="text-lg lg:text-xl mt-4">
+            Build amazing things with Next.js & Tailwind
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/auth"
+            className="inline-block bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-gray-100 transition"
           >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Get Started
+          </Link>
         </div>
-      </main>
+      </section>
+
+      {/* Features Section */}
+      <section className="max-w-6xl mx-auto text-center my-20 px-4">
+        <h2 className="text-3xl font-bold">Awesome Features</h2>
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+          {/* Feature 1 */}
+          <div>
+            <Image src="/file.svg" alt="Feature 1" width={60} height={60} />
+            <h4 className="mt-4 text-xl font-semibold">Fast Performance</h4>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              Optimized for speed and efficiency.
+            </p>
+          </div>
+
+          {/* Feature 2 */}
+          <div>
+            <Image src="/window.svg" alt="Feature 2" width={60} height={60} />
+            <h4 className="mt-4 text-xl font-semibold">User Friendly</h4>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              Intuitive and easy-to-use design.
+            </p>
+          </div>
+
+          {/* Feature 3 */}
+          <div>
+            <Image src="/globe.svg" alt="Feature 3" width={60} height={60} />
+            <h4 className="mt-4 text-xl font-semibold">SEO Ready</h4>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
+              Boost your search rankings with SEO.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-200 text-center py-6">
+        <p className="mb-0">© 2025 MyBrand. All rights reserved.</p>
+      </footer>
     </div>
+    
   );
 }

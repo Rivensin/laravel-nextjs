@@ -84,7 +84,6 @@ class ProductController extends Controller
             'message' => 'Product Data Updated',
             'product' => $product
         ]);
-
     }
 
     /**
@@ -98,6 +97,5 @@ class ProductController extends Controller
             'status' => true,
             'message' => 'Product Data Deleted'
         ]);
-
     }
 }

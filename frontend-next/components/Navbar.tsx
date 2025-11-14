@@ -1,0 +1,47 @@
+'use client'
+import { useState } from 'react';
+import Link from 'next/link';
+
+function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <nav className="bg-blue-600 text-white">
+      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+        <Link href="/" className="text-lg font-semibold">
+          MyNextApp
+        </Link>
+
+        <button onClick={() => setOpen(!open)} className="lg:hidden focus:outline-none">
+          <span className="block w-6 h-[2px] bg-white mb-1"></span>
+          <span className="block w-6 h-[2px] bg-white mb-1"></span>
+          <span className="block w-6 h-[2px] bg-white"></span>
+        </button>
+
+        <ul className={`flex-col lg:flex lg:flex-row lg:items-center lg:space-x-4 absolute lg:static left-0 w-full lg:w-auto bg-blue-600 lg:bg-transparent px-4 lg:px-0 transition-all duration-300 ${open ? "top-16" : "top-[-400px]"}`}>
+          <li>
+            <Link href="/dashboard" className="py-2 lg:py-0 block">
+              Dashboard
+            </Link>
+          </li>
+
+          <li>
+            <button className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded mt-2 lg:mt-0">
+              Logout
+            </button>
+          </li>
+
+          <li>
+            <Link href="/" className="py-2 lg:py-0 block">Home</Link>
+          </li>
+
+          <li>
+            <Link href="/auth" className="py-2 lg:py-0 block">Login</Link>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  )
+}
+
+export default Navbar
