@@ -27,8 +27,8 @@ export default function Home() {
         <h2 className="text-3xl font-bold">Awesome Features</h2>
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Feature 1 */}
-          <div>
-            <Image src="/file.svg" alt="Feature 1" width={60} height={60} />
+          <div className="flex flex-col items-center">
+            <Image src="/file.svg" alt="Feature 1" width={60} height={60}/>
             <h4 className="mt-4 text-xl font-semibold">Fast Performance</h4>
             <p className="mt-2 text-gray-600 dark:text-gray-300">
               Optimized for speed and efficiency.
@@ -36,7 +36,7 @@ export default function Home() {
           </div>
 
           {/* Feature 2 */}
-          <div>
+          <div className="flex flex-col items-center">
             <Image src="/window.svg" alt="Feature 2" width={60} height={60} />
             <h4 className="mt-4 text-xl font-semibold">User Friendly</h4>
             <p className="mt-2 text-gray-600 dark:text-gray-300">
@@ -45,7 +45,7 @@ export default function Home() {
           </div>
 
           {/* Feature 3 */}
-          <div>
+          <div className="flex flex-col items-center">
             <Image src="/globe.svg" alt="Feature 3" width={60} height={60} />
             <h4 className="mt-4 text-xl font-semibold">SEO Ready</h4>
             <p className="mt-2 text-gray-600 dark:text-gray-300">
