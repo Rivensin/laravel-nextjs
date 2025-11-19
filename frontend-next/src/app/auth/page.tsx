@@ -1,6 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { myAppHook } from '../../../context/AppProvider';
+import { useRouter } from 'next/navigation';
 
 interface formData{
   email: string;
@@ -10,19 +11,26 @@ interface formData{
 }
 
 const Auth : React.FC = () => {
-  const [isLogin, setIsLogin] = useState(false)
+  const [isLogin, setIsLogin] = useState(true)
   const [formData,setFormData] = useState<formData>({
     email: '',
     password: '',
     name: '',
     password_confirmation: ''
   })
+  const router = useRouter();
+
+  const {login,register,isLoading,authToken} = myAppHook();
+
+  useEffect(() => {
+    if(authToken){
+      router.push('/dashboard');
+    }
+  }, [authToken]);
 
   const handleOnChangeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({...formData,[event.target.name] : event.target.value})
   } 
-
-  const {login,register,isLoading} = myAppHook(); 
 
   const handleFormSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -31,13 +39,13 @@ const Auth : React.FC = () => {
       try{
         await login(formData.email,formData.password);
       } catch(error){
-        console.log("Authentication Error", error);
+        console.log("Authentication Error :", error);
       }
     }else{
       try{
         await register(formData.name!,formData.email,formData.password,formData.password_confirmation!);
       } catch(error){
-        console.log("Registration Error", error);
+        console.log("Registration Error :", error);
       }
     }
   }

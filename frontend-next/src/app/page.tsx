@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-blue-600 text-white text-center py-20">
+      <section className="bg-blue-600 text-white text-center py-36">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-4xl lg:text-5xl font-bold">
             Welcome to My Next.js App
@@ -23,9 +23,9 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="max-w-6xl mx-auto text-center my-20 px-4">
+      <section className="max-w-6xl mx-auto text-center mt-20 px-4 h-screen">
         <h2 className="text-3xl font-bold">Awesome Features</h2>
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Feature 1 */}
           <div className="flex flex-col items-center">
             <Image src="/file.svg" alt="Feature 1" width={60} height={60}/>

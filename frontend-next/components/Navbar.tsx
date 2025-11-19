@@ -1,10 +1,13 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
+import { myAppHook } from '../context/AppProvider';
+import Loader from './Loader';
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-
+  const { logout, authToken} = myAppHook();
+  
   return (
     <nav className="bg-blue-600 text-white">
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
@@ -19,25 +22,36 @@ function Navbar() {
         </button>
 
         <ul className={`flex-col lg:flex lg:flex-row lg:items-center lg:space-x-4 absolute lg:static left-0 w-full lg:w-auto bg-blue-600 lg:bg-transparent px-4 lg:px-0 transition-all duration-300 ${open ? "top-16" : "top-[-400px]"}`}>
-          <li>
-            <Link href="/dashboard" className="py-2 lg:py-0 block">
-              Dashboard
-            </Link>
-          </li>
+          
+          {authToken
+            ? 
+              <>
+                <li>
+                  <Link href="/dashboard" className="py-2 lg:py-0 block">
+                    Dashboard
+                  </Link>
+                </li>
 
-          <li>
-            <button className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded mt-2 lg:mt-0">
-              Logout
-            </button>
-          </li>
+                <li>
+                  <button 
+                    className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded mt-2 lg:mt-0"
+                    onClick={logout}>
+                    Logout
+                  </button>
+                </li>
+              </>
+            :
+              <>
+                <li>
+                  <Link href="/" className="py-2 lg:py-0 block">Home</Link>
+                </li>
 
-          <li>
-            <Link href="/" className="py-2 lg:py-0 block">Home</Link>
-          </li>
-
-          <li>
-            <Link href="/auth" className="py-2 lg:py-0 block">Login</Link>
-          </li>
+                <li>
+                  <Link href="/auth" className="py-2 lg:py-0 block">Login</Link>
+                </li>
+              </>
+          }
+          
         </ul>
       </div>
     </nav>
