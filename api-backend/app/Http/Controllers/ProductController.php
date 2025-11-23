@@ -16,7 +16,11 @@ class ProductController extends Controller
     {
         $user_id= auth()->user()->id;
 
-        $products = Product::where('user_id', $user_id)->get();
+        $products = Product::where('user_id', $user_id)->get()->map(function($product){
+            $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
+
+            return $product;
+        });
 
         return response()-> json([
             'status' => true,
@@ -69,16 +73,20 @@ class ProductController extends Controller
             'title' => 'required'
         ]);
 
+        $data['title'] = isset($request->title) ? $request->title : $product->title;
+        $data['description'] = isset($request->description) ? $request->description : $product->description;
+        $data['cost'] = isset($request->cost) ? $request->cost : $product->cost;
+
         if($request->hasFile('banner_image')){
             if($product->banner_image){
                 Storage::disk('public')->delete($product->banner_image);
             }
 
-            $data["banner_image"] = $request->file('banner_image')->store('product','public');
+            $data["banner_image"] = $request->file('banner_image')->store('products','public');
 
         }
 
-        Product::update($data);
+        $product->update($data);
 
         return response()->json([
             'status' => true,
