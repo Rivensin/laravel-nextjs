@@ -69,19 +69,7 @@ const Dashboard : React.FC = () => {
 
         fetchAllProducts();
 
-        if(response.data.status){
-          toast.success(response.data.message);
-          setFormData({
-            title: '',
-            description: '',
-            cost: 0,
-            file: '',
-            banner_image: null
-          });
-          if(fileRef.current){
-            fileRef.current.value = '';
-          }
-        }
+        toast.success(response.data.message);
         
       } else {
         //Add Operation
@@ -109,6 +97,46 @@ const Dashboard : React.FC = () => {
     }catch(error){
       console.log("Error adding product :", error);
     }
+  }
+
+  //Form Submit Handler
+  const handleDeleteProduct = (id : number) => {
+    
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!"
+      }).then(async(result) => {
+        if(result.isConfirmed) {
+          try{
+            const request = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`,{
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+              },  
+            });
+
+            if(request.data.status){
+              // toast.success(request.data.message);
+              Swal.fire({
+                title: "Deleted!",
+                text: "Your file has been deleted.",
+                icon: "success"
+              });
+              fetchAllProducts();
+            }
+            
+          }catch(error){
+            console.log("Error deleting product :", error);
+          }
+
+          
+        }
+      });
+    
   }
 
   //Fetch All Products
@@ -187,7 +215,7 @@ const Dashboard : React.FC = () => {
               />
 
               <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md" type="submit">
-                {isEdit ? 'Edit Product' : 'Add Product'}
+                {isEdit ? 'Update Product' : 'Add Product'}
               </button>
             </form>
           </div>
@@ -247,7 +275,9 @@ const Dashboard : React.FC = () => {
                           
                           Edit
                         </button>
-                        <button className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700">
+                        <button 
+                          className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700"
+                          onClick={() => {handleDeleteProduct(singleProduct.id)}}>
                           Delete
                         </button>
                       </td>

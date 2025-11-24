@@ -67,6 +67,8 @@ export const AppProvider = ({children} : { children: React.ReactNode}) => {
           password,
           password_confirmation
         });
+
+        toast.success(response.data.message);
       }catch(error){
         console.log("Registration Error :", error);
       }finally{
