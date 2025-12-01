@@ -18,7 +18,7 @@ interface ProductType{
 
 const Dashboard : React.FC = () => {
   const router = useRouter();
-  const {isLoading,authToken} = myAppHook();
+  const {authToken} = myAppHook();
   const fileRef = React.useRef<HTMLInputElement | null>(null);
   const [formData,setFormData] = React.useState<ProductType>({
     title: '',
@@ -29,6 +29,7 @@ const Dashboard : React.FC = () => {
   });
   const [products,setProducts] = React.useState<ProductType[]>([]);
   const [isEdit,setIsEdit] = React.useState<boolean>(false);
+  const [isLoading,setIsLoading] = React.useState<boolean>(false);
 
   //Load Page When Auth Token is not present
   useEffect(() => {
@@ -57,6 +58,7 @@ const Dashboard : React.FC = () => {
     try{
       if(isEdit){
         //Edit Operation
+        setIsLoading(true);
         const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products/${formData.id}`
           ,{...formData, "_method" : "PUT"}
           ,{
@@ -70,6 +72,7 @@ const Dashboard : React.FC = () => {
         fetchAllProducts();
 
         toast.success(response.data.message);
+        setIsLoading(false);
         
       } else {
         //Add Operation
@@ -132,8 +135,6 @@ const Dashboard : React.FC = () => {
           }catch(error){
             console.log("Error deleting product :", error);
           }
-
-          
         }
       });
     
@@ -166,29 +167,32 @@ const Dashboard : React.FC = () => {
 
             <form className="flex flex-col gap-3" onSubmit={handleFormSubmit}>
               <input 
-                className="border rounded-md px-3 py-2" 
+                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
                 name="title" 
                 placeholder="Title" 
                 value={formData.title}
                 onChange={handleOnChangeEvent}
+                disabled={isLoading}
                 required />
 
               <input 
-                className="border rounded-md px-3 py-2" 
+                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
                 name="description" 
                 placeholder="Description"
                 value={formData.description} 
                 onChange={handleOnChangeEvent}
+                disabled={isLoading}
                 required 
               />
 
               <input 
-                className="border rounded-md px-3 py-2" 
+                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`}
                 name="cost" 
                 placeholder="Cost" 
                 type="number" 
                 value={formData.cost}
                 onChange={handleOnChangeEvent}
+                disabled={isLoading}
                 required 
               />
 
@@ -207,14 +211,15 @@ const Dashboard : React.FC = () => {
               </div>
 
               <input 
-                className="border rounded-md px-3 py-2" 
+                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
                 type="file" 
                 id="bannerInput" 
                 ref={fileRef}
                 onChange={handleOnChangeEvent}
+                disabled={isLoading}
               />
 
-              <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md" type="submit">
+              <button className={` hover:bg-blue-700 text-white py-2 rounded-md ${isLoading ? 'bg-slate-600' : 'bg-blue-600'}`} type="submit" disabled={isLoading} >
                 {isEdit ? 'Update Product' : 'Add Product'}
               </button>
             </form>
@@ -229,6 +234,7 @@ const Dashboard : React.FC = () => {
                 <tr>
                   <th className="border px-3 py-2 text-left">ID</th>
                   <th className="border px-3 py-2 text-left">Title</th>
+                  <th className="border px-3 py-2 text-left">Description</th>
                   <th className="border px-3 py-2 text-left">Banner</th>
                   <th className="border px-3 py-2 text-left">Cost</th>
                   <th className="border px-3 py-2 text-left">Actions</th>
@@ -240,6 +246,7 @@ const Dashboard : React.FC = () => {
                     <tr key={singleProduct.id}>
                       <td className="border px-3 py-2">{singleProduct.id}</td>
                       <td className="border px-3 py-2">{singleProduct.title}</td>
+                      <td className="border px-3 py-2">{singleProduct.description}</td>
                       <td className="border px-3 py-2">
                         {singleProduct.banner_image 
                           ? 
@@ -258,28 +265,33 @@ const Dashboard : React.FC = () => {
                         }
                         
                       </td>
-                      <td className="border px-3 py-2">{singleProduct.cost}</td>
-                      <td className="border px-3 py-2 flex gap-2">
-                        <button 
-                          className="bg-yellow-500 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-600"
-                          onClick={() => {
-                            setFormData({
-                              id: singleProduct.id,
-                              title: singleProduct.title,
-                              description: singleProduct.description,
-                              cost: singleProduct.cost,
-                              file: singleProduct.banner_image,
-                            })
-                            setIsEdit(true);
-                          }}>
-                          
-                          Edit
-                        </button>
-                        <button 
-                          className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700"
-                          onClick={() => {handleDeleteProduct(singleProduct.id)}}>
-                          Delete
-                        </button>
+                      <td className="border px-3 py-2">{singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0})}</td>
+                      <td className="border px-3 py-2 h-full">
+                        <div className='flex flex-col gap-6 w-20'>
+                            <button 
+                              className="bg-yellow-500 text-white px-3 py-2 rounded-md text-sm hover:bg-yellow-600"
+                              onClick={() => {
+                                setFormData({
+                                  id: singleProduct.id,
+                                  title: singleProduct.title,
+                                  description: singleProduct.description,
+                                  cost: singleProduct.cost,
+                                  file: singleProduct.banner_image,
+                                })
+                                setIsEdit(true);
+                              }}>
+                              
+                              Edit
+                            </button>
+
+                            <button 
+                              className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
+                              onClick={() => {handleDeleteProduct(singleProduct.id)}}>
+                              Delete
+                            </button>
+                        </div>
+                        
+                        
                       </td>
                     </tr>
                   ))
