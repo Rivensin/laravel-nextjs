@@ -31,15 +31,10 @@ const Dashboard : React.FC = () => {
   const [isEdit,setIsEdit] = React.useState<boolean>(false);
   const [isLoading,setIsLoading] = React.useState<boolean>(false);
 
-  //Load Page When Auth Token is not present
+   //Load Page When Auth Token is not present
+
   useEffect(() => {
-    if(!authToken){
-      router.push('/auth')
-      return
-    } 
-      
-    fetchAllProducts();
-    
+    if(authToken) fetchAllProducts();    
   },[authToken]);
 
   //Input Change Handler
@@ -85,6 +80,7 @@ const Dashboard : React.FC = () => {
 
         if(response.data.status){
           toast.success(response.data.message);
+          fetchAllProducts();
           setFormData({
             title: '',
             description: '',
@@ -258,6 +254,7 @@ const Dashboard : React.FC = () => {
                                 width={100} 
                                 height={100}
                                 unoptimized
+                                priority
                                 />
                             ) 
                           : 
@@ -265,7 +262,7 @@ const Dashboard : React.FC = () => {
                         }
                         
                       </td>
-                      <td className="border px-3 py-2">{singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0})}</td>
+                      <td className="border px-3 py-2">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
                       <td className="border px-3 py-2 h-full">
                         <div className='flex flex-col gap-6 w-20'>
                             <button 
@@ -286,7 +283,7 @@ const Dashboard : React.FC = () => {
 
                             <button 
                               className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
-                              onClick={() => {handleDeleteProduct(singleProduct.id)}}>
+                              onClick={() => {handleDeleteProduct(singleProduct.id ? singleProduct.id : 0)}}>
                               Delete
                             </button>
                         </div>

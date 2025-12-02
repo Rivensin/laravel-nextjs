@@ -25,14 +25,9 @@ export const AppProvider = ({children} : { children: React.ReactNode}) => {
     const router = useRouter();
 
     useEffect(() => {
-      const token = Cookies.get('authToken');
-      
-      if(token){
-        setAuthToken(token);
-      } else {
-        router.push('/auth');
-      }
-      setIsLoading(false);
+      const token = Cookies.get('authToken');      
+      if(token) setAuthToken(token);
+      setIsLoading(false)
     },[]);
 
     const login = async (email:string,password:string) => {
@@ -52,7 +47,7 @@ export const AppProvider = ({children} : { children: React.ReactNode}) => {
           toast.error("Invalid Login");
         }
       }catch(error){
-      
+        console.log("Login Error :", error);
       }finally{
         setIsLoading(false);
       }
@@ -86,7 +81,14 @@ export const AppProvider = ({children} : { children: React.ReactNode}) => {
 
     return (
       <appContext.Provider value={{login,register,logout,isLoading,authToken}}>
-        {isLoading ? <Loader /> : children}
+        {isLoading 
+          ? 
+            <Loader /> 
+          : 
+            <>
+              <Navbar />
+              {children}
+            </>}
       </appContext.Provider>
     );
 }

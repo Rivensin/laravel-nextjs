@@ -1,18 +1,18 @@
 'use client'
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, use } from 'react';
 import Link from 'next/link';
 import { myAppHook } from '../context/AppProvider';
-import Loader from './Loader';
+import Cookies from 'js-cookie';
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const { logout, authToken} = myAppHook();
+  const { logout, authToken, isLoading} = myAppHook();
   
   return (
     <nav className="bg-blue-600 text-white">
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
+      <div className="max-w-8xl mx-auto px-4 flex items-center justify-between h-16">
         <Link href="/" className="text-lg font-semibold">
-          MyNextApp
+          Product Management App
         </Link>
 
         <button onClick={() => setOpen(!open)} className="lg:hidden focus:outline-none">
