@@ -13,4 +13,14 @@ class Product extends Model
         'cost',
         'user_id'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(transactionItem::class, 'product_id');
+    }
 }

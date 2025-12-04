@@ -15,7 +15,7 @@ interface ProductType{
   banner_image? : File | null;
 }
 
-const Dashboard : React.FC = () => {
+const Transaction : React.FC = () => {
   const {authToken} = myAppHook();
   const fileRef = React.useRef<HTMLInputElement | null>(null);
   const [formData,setFormData] = React.useState<ProductType>({
@@ -301,4 +301,4 @@ const Dashboard : React.FC = () => {
   )
 }
 
-export default Dashboard
+export default Transaction

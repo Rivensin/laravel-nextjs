@@ -14,9 +14,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $user_id= auth()->user()->id;
-
-        $products = Product::where('user_id', $user_id)->get()->map(function($product){
+       
+        $products = Product::all()->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
 
             return $product;
@@ -27,6 +26,22 @@ class ProductController extends Controller
             'products' => $products
         ]);
     }   
+
+    // public function index()
+    // {
+    //     $user_id= auth()->user()->id;
+
+    //     $products = Product::where('user_id', $user_id)->get()->map(function($product){
+    //         $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
+
+    //         return $product;
+    //     });
+
+    //     return response()-> json([
+    //         'status' => true,
+    //         'products' => $products
+    //     ]);
+    // }   
 
     /**
      * Store a newly created resource in storage.
