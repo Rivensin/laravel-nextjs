@@ -29,10 +29,9 @@ const Dashboard : React.FC = () => {
   const [isEdit,setIsEdit] = React.useState<boolean>(false);
   const [isLoading,setIsLoading] = React.useState<boolean>(false);
 
-   //Load Page When Auth Token is not present
-
+   //if AuthToken ready then load Product
   useEffect(() => {
-    if(authToken) fetchAllProducts();    
+    if(authToken) fetchAllProducts()
   },[authToken]);
 
   //Input Change Handler
@@ -153,7 +152,6 @@ const Dashboard : React.FC = () => {
   return (
     <div className="container mx-auto mt-4 px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         {/* Left Side: Form */}
         <div>
           <div className="bg-white shadow-md rounded-lg p-6">
@@ -224,74 +222,91 @@ const Dashboard : React.FC = () => {
         <div>
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-3 py-2 text-left">ID</th>
-                  <th className="border px-3 py-2 text-left">Title</th>
-                  <th className="border px-3 py-2 text-left">Description</th>
-                  <th className="border px-3 py-2 text-left">Banner</th>
-                  <th className="border px-3 py-2 text-left">Cost</th>
-                  <th className="border px-3 py-2 text-left">Actions</th>
+              <thead className="bg-gray-100 text-center">
+                <tr className=''>
+                  <th className="border px-3 py-2">ID</th>
+                  <th className="border px-3 py-2">Title</th>
+                  <th className="border px-3 py-2">Description</th>
+                  <th className="border px-3 py-2">Banner</th>
+                  <th className="border px-3 py-2">Cost</th>
+                  <th className="border px-3 py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {
-                  products.map((singleProduct,index) => (
-                    <tr key={singleProduct.id}>
-                      <td className="border px-3 py-2">{singleProduct.id}</td>
-                      <td className="border px-3 py-2">{singleProduct.title}</td>
-                      <td className="border px-3 py-2">{singleProduct.description}</td>
-                      <td className="border px-3 py-2">
-                        {singleProduct.banner_image 
-                          ? 
-                            (
-                              <Image 
-                                src={singleProduct.banner_image} 
-                                alt="Product" 
-                                className="object-cover rounded-md" 
-                                width={100} 
-                                height={100}
-                                unoptimized
-                                priority
-                                />
-                            ) 
-                          : 
-                            'No Image'
-                        }
-                        
-                      </td>
-                      <td className="border px-3 py-2">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
-                      <td className="border px-3 py-2 h-full">
-                        <div className='flex flex-col gap-6 w-20'>
-                            <button 
-                              className="bg-yellow-500 text-white px-3 py-2 rounded-md text-sm hover:bg-yellow-600"
-                              onClick={() => {
-                                setFormData({
-                                  id: singleProduct.id,
-                                  title: singleProduct.title,
-                                  description: singleProduct.description,
-                                  cost: singleProduct.cost,
-                                  file: singleProduct.banner_image,
-                                })
-                                setIsEdit(true);
-                              }}>
-                              
-                              Edit
-                            </button>
+                  products.length !== 0
+                  ?  
+                    (
+                      products.map((singleProduct,index) => (
+                      <tr key={singleProduct.id}>
+                        <td className="border px-3 py-2">{singleProduct.id}</td>
+                        <td className="border px-3 py-2">{singleProduct.title}</td>
+                        <td className="border px-3 py-2">{singleProduct.description}</td>
+                        <td className="border px-3 py-2">
+                          {singleProduct.banner_image 
+                            ? 
+                              (
+                                <Image 
+                                  src={singleProduct.banner_image} 
+                                  alt="Product" 
+                                  className="object-cover rounded-md" 
+                                  width={100} 
+                                  height={100}
+                                  unoptimized
+                                  priority
+                                  />
+                              ) 
+                            : 
+                              'No Image'
+                          }
+                          
+                        </td>
+                        <td className="border px-3 py-2">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
+                        <td className="border px-3 py-2 h-full">
+                          <div className='flex flex-col gap-6 w-20'>
+                              <button 
+                                className="bg-yellow-500 text-white px-3 py-2 rounded-md text-sm hover:bg-yellow-600"
+                                onClick={() => {
+                                  setFormData({
+                                    id: singleProduct.id,
+                                    title: singleProduct.title,
+                                    description: singleProduct.description,
+                                    cost: singleProduct.cost,
+                                    file: singleProduct.banner_image,
+                                  })
+                                  setIsEdit(true);
+                                }}>
+                                
+                                Edit
+                              </button>
 
-                            <button 
-                              className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
-                              onClick={() => {handleDeleteProduct(singleProduct.id ? singleProduct.id : 0)}}>
-                              Delete
-                            </button>
-                        </div>
-                        
-                        
-                      </td>
-                    </tr>
-                  ))
-                }
-                
+                              <button 
+                                className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
+                                onClick={() => {handleDeleteProduct(singleProduct.id ? singleProduct.id : 0)}}>
+                                Delete
+                              </button>
+                          </div>
+                          
+                          
+                        </td>
+                      </tr>
+                      ))
+                    )
+                : 
+                  (
+                    Array.from({length:2}).map((_,index) => (
+                      <tr key={index}>
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td>
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td> 
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td> 
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td> 
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td> 
+                        <td className='max-w-xl h-36 bg-slate-300 transition-all ease-out duration-700 animate-pulse'></td> 
+                      </tr>
+                    )
+                  )
+                  )
+                }                
               </tbody>
             </table>
           </div>

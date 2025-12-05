@@ -15,6 +15,11 @@ interface ProductType{
   banner_image? : File | null;
 }
 
+interface QuantityType{
+  [id : number]: number;
+}
+
+
 const Transaction : React.FC = () => {
   const {authToken} = myAppHook();
   const fileRef = React.useRef<HTMLInputElement | null>(null);
@@ -25,114 +30,14 @@ const Transaction : React.FC = () => {
     file: '',
     banner_image: null
   });
+  
   const [products,setProducts] = React.useState<ProductType[]>([]);
-  const [isEdit,setIsEdit] = React.useState<boolean>(false);
-  const [isLoading,setIsLoading] = React.useState<boolean>(false);
+  const [quantities,setQuantities] = React.useState<QuantityType>({});
 
-   //Load Page When Auth Token is not present
-
+  //Load Page When Auth Token is present
   useEffect(() => {
     if(authToken) fetchAllProducts();    
   },[authToken]);
-
-  //Input Change Handler
-  const handleOnChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if(event.target.files){
-      setFormData({...formData, banner_image: event.target.files[0], file: URL.createObjectURL(event.target.files[0])});
-    }else{
-      setFormData({...formData,[event.target.name] : event.target.value}) 
-    }
-  }
-
-  //Form Submit Handler
-  const handleFormSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    try{
-      if(isEdit){
-        //Edit Operation
-        setIsLoading(true);
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products/${formData.id}`
-          ,{...formData, "_method" : "PUT"}
-          ,{
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              'Content-Type': 'multipart/form-data',
-            }
-          }
-        );
-
-        fetchAllProducts();
-
-        toast.success(response.data.message);
-        setIsLoading(false);
-        
-      } else {
-        //Add Operation
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products`,formData,{
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            'Content-Type': 'multipart/form-data',
-          },  
-        });
-
-        if(response.data.status){
-          toast.success(response.data.message);
-          fetchAllProducts();
-          setFormData({
-            title: '',
-            description: '',
-            cost: 0,
-            file: '',
-            banner_image: null
-          });
-          if(fileRef.current){
-            fileRef.current.value = '';
-          }
-        }
-      }
-    }catch(error){
-      console.log("Error adding product :", error);
-    }
-  }
-
-  //Form Submit Handler
-  const handleDeleteProduct = (id : number) => {
-    
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!"
-      }).then(async(result) => {
-        if(result.isConfirmed) {
-          try{
-            const request = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/products/${id}`,{
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-              },  
-            });
-
-            if(request.data.status){
-              // toast.success(request.data.message);
-              Swal.fire({
-                title: "Deleted!",
-                text: "Your file has been deleted.",
-                icon: "success"
-              });
-              fetchAllProducts();
-            }
-            
-          }catch(error){
-            console.log("Error deleting product :", error);
-          }
-        }
-      });
-    
-  }
 
   //Fetch All Products
   const fetchAllProducts = async() => {
@@ -150,12 +55,32 @@ const Transaction : React.FC = () => {
     }
   }
 
-  return (
-    <div className="container mx-auto mt-4 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  const handleChange = (id: number,value: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [id] : Math.max(0,Math.min(Number(value),20))
+    }))
+  }
 
+  const increase = (id : number, max: number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.min((prev[id] || 0) + 1,max)
+    }));
+  };
+
+  const decrease = (id : number) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max((prev[id] || 1) - 1,0)
+    }));
+  };
+
+  return (
+    <div className="container mx-auto mt-4 px-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Left Side: Form */}
-        <div>
+        {/* <div>
           <div className="bg-white shadow-md rounded-lg p-6">
             <h4 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Product' : 'Add Product'}</h4>
 
@@ -218,82 +143,63 @@ const Transaction : React.FC = () => {
               </button>
             </form>
           </div>
-        </div>
+        </div> */}
 
         {/* Right Side: Table */}
         <div>
           <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-3 py-2 text-left">ID</th>
-                  <th className="border px-3 py-2 text-left">Title</th>
-                  <th className="border px-3 py-2 text-left">Description</th>
-                  <th className="border px-3 py-2 text-left">Banner</th>
-                  <th className="border px-3 py-2 text-left">Cost</th>
-                  <th className="border px-3 py-2 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  products.map((singleProduct,index) => (
-                    <tr key={singleProduct.id}>
-                      <td className="border px-3 py-2">{singleProduct.id}</td>
-                      <td className="border px-3 py-2">{singleProduct.title}</td>
-                      <td className="border px-3 py-2">{singleProduct.description}</td>
-                      <td className="border px-3 py-2">
-                        {singleProduct.banner_image 
-                          ? 
-                            (
-                              <Image 
-                                src={singleProduct.banner_image} 
-                                alt="Product" 
-                                className="object-cover rounded-md" 
-                                width={100} 
-                                height={100}
-                                unoptimized
-                                priority
-                                />
-                            ) 
-                          : 
-                            'No Image'
-                        }
-                        
-                      </td>
-                      <td className="border px-3 py-2">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
-                      <td className="border px-3 py-2 h-full">
-                        <div className='flex flex-col gap-6 w-20'>
-                            <button 
-                              className="bg-yellow-500 text-white px-3 py-2 rounded-md text-sm hover:bg-yellow-600"
-                              onClick={() => {
-                                setFormData({
-                                  id: singleProduct.id,
-                                  title: singleProduct.title,
-                                  description: singleProduct.description,
-                                  cost: singleProduct.cost,
-                                  file: singleProduct.banner_image,
-                                })
-                                setIsEdit(true);
-                              }}>
-                              
-                              Edit
-                            </button>
+            <div className='grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6'>
+              {products.map(product => (
+                <div key={product.id} className="bg-neutral-primary-soft block max-w-sm border border-default rounded-base shadow-xs">
+                  <Image 
+                    className="rounded-t-base w-full h-60 lg:h-72 bg-cover" 
+                    src={product.banner_image} 
+                    alt="" 
+                    width={100} 
+                    height={100} 
+                    unoptimized
+                    priority
+                    />
+                  <div className="p-6 text-center">
+                    <h5 className="mb-2 text-lg font-semibold tracking-tight text-heading">
+                      {product.title}
+                    </h5>
+                    <h5 className="mb-2 text-lg tracking-tight text-heading">
+                      {product.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0})}
+                    </h5>
+                    <form>
+                      <div className='flex justify-center items-center'>
+                        <button 
+                          type='button'
+                          className="px-5 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition" 
+                          onClick={() => decrease(product.id)}>
+                            -
+                        </button>
+                        <input 
+                          type="number" 
+                          className='no-spinner w-16 h-10 mx-4 text-center border-b-2 border-black' 
+                          min={0}
+                          max={20} 
+                          value={quantities[product.id] || 0} 
+                          name='qty' 
+                          onChange={e => handleChange(product.id,e.target.value)}
+                        />
+                        <button 
+                          type='button'
+                          className="px-4 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition"
+                          onClick={() => increase(product.id,20)}>
+                            +
+                        </button>
+                      </div>
+                      
+                    </form>
+                    
+                  </div>
+                </div>
+              ))}
+              
 
-                            <button 
-                              className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
-                              onClick={() => {handleDeleteProduct(singleProduct.id ? singleProduct.id : 0)}}>
-                              Delete
-                            </button>
-                        </div>
-                        
-                        
-                      </td>
-                    </tr>
-                  ))
-                }
-                
-              </tbody>
-            </table>
+            </div>
           </div>
         </div>
       </div>
