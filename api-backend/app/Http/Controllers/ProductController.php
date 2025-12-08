@@ -12,18 +12,35 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-       
-        $products = Product::all()->map(function($product){
+    public function index(Request $request)
+    {   
+        if($request->pagination == 0){
+            $products = Product::all()->map(function($product){
+            $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
+
+            return $product;
+            });
+
+            return response()-> json([
+                'status' => true,
+                'products' => $products
+            ]);
+        }
+
+        $limit = $request->limit ?? 5;
+        $product = Product::paginate($limit);
+
+        $mappedProduct = collect($product->items())->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
 
             return $product;
         });
 
-        return response()-> json([
+        return response()->json([
             'status' => true,
-            'products' => $products
+            'products' => $mappedProduct,
+            'totalPage' => $product->lastPage(),
+            'currentPage' => $product->currentPage()
         ]);
     }   
 

@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { myAppHook } from '../../../context/AppProvider';
 import Image from 'next/image';
 import axios from 'axios';
@@ -26,20 +26,24 @@ const Dashboard : React.FC = () => {
     banner_image: null
   });
   const [products,setProducts] = React.useState<ProductType[]>([]);
+  const [currentPage,setCurrentPage] = useState<number>(1);
+  const [totalPage,setTotalPage] = useState<number>(1);
+  const [limit] = useState(5);
+
   const [isEdit,setIsEdit] = React.useState<boolean>(false);
   const [isLoading,setIsLoading] = React.useState<boolean>(false);
 
-   //if AuthToken ready then load Product
+   //if ready then load Product
   useEffect(() => {
-    if(authToken) fetchAllProducts()
-  },[authToken]);
+  fetchAllProducts()
+  },[]);
 
   //Input Change Handler
   const handleOnChangeEvent = (event: React.ChangeEvent<HTMLInputElement>) => {
     if(event.target.files){
       setFormData({...formData, banner_image: event.target.files[0], file: URL.createObjectURL(event.target.files[0])});
     }else{
-      setFormData({...formData,[event.target.name] : event.target.value}) 
+      setFormData({...formData, [event.target.name] : event.target.value}) 
     }
   }
 
@@ -60,7 +64,17 @@ const Dashboard : React.FC = () => {
             }
           }
         );
-
+        setFormData({
+            title: '',
+            description: '',
+            cost: 0,
+            file: '',
+            banner_image: null
+          });
+        if(fileRef.current){
+          fileRef.current.value = '';
+        }
+        setIsEdit(false)
         fetchAllProducts();
 
         toast.success(response.data.message);
@@ -68,6 +82,7 @@ const Dashboard : React.FC = () => {
         
       } else {
         //Add Operation
+        setIsLoading(true);
         const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/products`,formData,{
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -88,6 +103,7 @@ const Dashboard : React.FC = () => {
           if(fileRef.current){
             fileRef.current.value = '';
           }
+          setIsLoading(false);
         }
       }
     }catch(error){
@@ -134,15 +150,22 @@ const Dashboard : React.FC = () => {
   }
 
   //Fetch All Products
-  const fetchAllProducts = async() => {
+  const fetchAllProducts = async(page = 1) => {
     try{
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`,{
+        params: {
+          pagination: 1,
+          page,
+          limit
+        },
         headers: {
           Authorization: `Bearer ${authToken}`,
         },  
       });
 
       setProducts(response.data.products);
+      setTotalPage(response.data.totalPage);
+      setCurrentPage(page);
       
     }catch(error){
       console.log("Error fetching products :", error);
@@ -150,8 +173,8 @@ const Dashboard : React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto mt-4 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="mx-auto mt-4 px-2 pb-2">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Left Side: Form */}
         <div>
           <div className="bg-white shadow-md rounded-lg p-6">
@@ -159,7 +182,7 @@ const Dashboard : React.FC = () => {
 
             <form className="flex flex-col gap-3" onSubmit={handleFormSubmit}>
               <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
+                className={`border rounded-md px-3 py-2 transition-all duration-500 ease-out ${isLoading ? 'bg-gray-400' : ''}`} 
                 name="title" 
                 placeholder="Title" 
                 value={formData.title}
@@ -168,7 +191,7 @@ const Dashboard : React.FC = () => {
                 required />
 
               <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
+                className={`border rounded-md px-3 py-2 transition-all duration-500 ease-out ${isLoading ? 'bg-gray-400' : ''}`} 
                 name="description" 
                 placeholder="Description"
                 value={formData.description} 
@@ -178,7 +201,7 @@ const Dashboard : React.FC = () => {
               />
 
               <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`}
+                className={`border rounded-md px-3 py-2 transition-all duration-500 ease-out ${isLoading ? 'bg-gray-400' : ''}`}
                 name="cost" 
                 placeholder="Cost" 
                 type="number" 
@@ -203,7 +226,7 @@ const Dashboard : React.FC = () => {
               </div>
 
               <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
+                className={`border rounded-md px-3 py-2 transition-all duration-500 ease-out ${isLoading ? 'bg-gray-400' : ''}`} 
                 type="file" 
                 id="bannerInput" 
                 ref={fileRef}
@@ -211,7 +234,7 @@ const Dashboard : React.FC = () => {
                 disabled={isLoading}
               />
 
-              <button className={` hover:bg-blue-700 text-white py-2 rounded-md ${isLoading ? 'bg-slate-600' : 'bg-blue-600'}`} type="submit" disabled={isLoading} >
+              <button className={` hover:bg-blue-700 text-white py-2 rounded-md transition-all duration-500 ease-out ${isLoading ? 'bg-gray-400' : 'bg-blue-600'}`} type="submit" disabled={isLoading} >
                 {isEdit ? 'Update Product' : 'Add Product'}
               </button>
             </form>
@@ -220,6 +243,31 @@ const Dashboard : React.FC = () => {
 
         {/* Right Side: Table */}
         <div>
+          <button 
+            onClick={() => fetchAllProducts(currentPage-1)}
+            disabled= {currentPage===1}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            Prev
+          </button>
+
+          {Array.from({length: totalPage},(_,i) => i+1).map(page => (
+            <button 
+              key={page}
+              onClick={() => fetchAllProducts(page)}
+              className={`px-3 py-1 border rounded ${page === currentPage ? 'bg-black text-white' : ''} `}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button 
+            onClick={() => fetchAllProducts(currentPage+1)}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            Next
+          </button>
+
           <div className="overflow-x-auto">
             <table className="min-w-full border border-gray-300">
               <thead className="bg-gray-100 text-center">
@@ -239,17 +287,17 @@ const Dashboard : React.FC = () => {
                     (
                       products.map((singleProduct,index) => (
                       <tr key={singleProduct.id}>
-                        <td className="border px-3 py-2">{singleProduct.id}</td>
-                        <td className="border px-3 py-2">{singleProduct.title}</td>
-                        <td className="border px-3 py-2">{singleProduct.description}</td>
-                        <td className="border px-3 py-2">
+                        <td className="border px-2 py-2 text-center">{singleProduct.id}</td>
+                        <td className="border px-2 py-2">{singleProduct.title}</td>
+                        <td className="border px-2 py-2">{singleProduct.description}</td>
+                        <td className="border px-2 py-2">
                           {singleProduct.banner_image 
                             ? 
                               (
                                 <Image 
                                   src={singleProduct.banner_image} 
                                   alt="Product" 
-                                  className="object-cover rounded-md" 
+                                  className="object-cover rounded-md w-full h-36" 
                                   width={100} 
                                   height={100}
                                   unoptimized
@@ -261,11 +309,11 @@ const Dashboard : React.FC = () => {
                           }
                           
                         </td>
-                        <td className="border px-3 py-2">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
-                        <td className="border px-3 py-2 h-full">
-                          <div className='flex flex-col gap-6 w-20'>
+                        <td className="border px-2 py-2 text-center">{singleProduct.cost ? singleProduct.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0}) : ''}</td>
+                        <td className="border px-2 h-full">
+                          <div className='flex flex-col gap-6'>
                               <button 
-                                className="bg-yellow-500 text-white px-3 py-2 rounded-md text-sm hover:bg-yellow-600"
+                                className="bg-yellow-500 text-white py-2 rounded-md text-sm hover:bg-yellow-600 transition-all duration-500 ease-out"
                                 onClick={() => {
                                   setFormData({
                                     id: singleProduct.id,
@@ -281,13 +329,11 @@ const Dashboard : React.FC = () => {
                               </button>
 
                               <button 
-                                className="bg-red-600 text-white px-3 py-2 rounded-md text-sm hover:bg-red-700"
+                                className="bg-red-600 text-white py-2 rounded-md text-sm hover:bg-red-700 transition-all duration-500 ease-out"
                                 onClick={() => {handleDeleteProduct(singleProduct.id ? singleProduct.id : 0)}}>
                                 Delete
                               </button>
                           </div>
-                          
-                          
                         </td>
                       </tr>
                       ))
