@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { myAppHook } from '../../../context/AppProvider';
 import Image from 'next/image';
 import axios from 'axios';
@@ -19,20 +19,11 @@ interface QuantityType{
   [id : number]: number;
 }
 
-
 const Transaction : React.FC = () => {
   const {authToken} = myAppHook();
-  const fileRef = React.useRef<HTMLInputElement | null>(null);
-  const [formData,setFormData] = React.useState<ProductType>({
-    title: '',
-    description: '',
-    cost: 0,
-    file: '',
-    banner_image: null
-  });
-  
   const [products,setProducts] = React.useState<ProductType[]>([]);
   const [quantities,setQuantities] = React.useState<QuantityType>({});
+  const [isEdit,setIsEdit] = useState(false);
 
   //Load Page When Auth Token is present
   useEffect(() => {
@@ -70,89 +61,39 @@ const Transaction : React.FC = () => {
   };
 
   const decrease = (id : number) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: Math.max((prev[id] || 1) - 1,0)
-    }));
+    setQuantities((prev) => {
+      const newItem = Math.max((prev[id] || 1) - 1,0)
+
+      if(newItem === 0){
+        const updated = {...prev}
+        delete updated[id]
+        return updated
+      }
+
+      return {
+        ...prev,
+        [id]: newItem
+      }
+    });
   };
 
+  console.log(quantities)
   return (
-    <div className="container mx-auto mt-4 px-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="mt-4 px-2">
+      <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-6">
         {/* Left Side: Form */}
-        {/* <div>
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h4 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Product' : 'Add Product'}</h4>
-
-            <form className="flex flex-col gap-3" onSubmit={handleFormSubmit}>
-              <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
-                name="title" 
-                placeholder="Title" 
-                value={formData.title}
-                onChange={handleOnChangeEvent}
-                disabled={isLoading}
-                required />
-
-              <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
-                name="description" 
-                placeholder="Description"
-                value={formData.description} 
-                onChange={handleOnChangeEvent}
-                disabled={isLoading}
-                required 
-              />
-
-              <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`}
-                name="cost" 
-                placeholder="Cost" 
-                type="number" 
-                value={formData.cost}
-                onChange={handleOnChangeEvent}
-                disabled={isLoading}
-                required 
-              />
-
-              <div>
-                {formData.file && (
-                  <Image 
-                    src={formData.file} 
-                    alt={formData.file} 
-                    id="bannerPreview" 
-                    className="object-cover rounded-md" 
-                    width={100} 
-                    height={100} 
-                    unoptimized
-                  />
-                )}
-              </div>
-
-              <input 
-                className={`border rounded-md px-3 py-2 ${isLoading ? 'bg-gray-400' : ''}`} 
-                type="file" 
-                id="bannerInput" 
-                ref={fileRef}
-                onChange={handleOnChangeEvent}
-                disabled={isLoading}
-              />
-
-              <button className={` hover:bg-blue-700 text-white py-2 rounded-md ${isLoading ? 'bg-slate-600' : 'bg-blue-600'}`} type="submit" disabled={isLoading} >
-                {isEdit ? 'Update Product' : 'Add Product'}
-              </button>
-            </form>
-          </div>
-        </div> */}
+        <div>
+          Left Side
+        </div>
 
         {/* Right Side: Table */}
         <div>
-          <div className="overflow-x-auto">
-            <div className='grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6'>
+          <div className="">
+            <div className='grid grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-6'>
               {products.map(product => (
-                <div key={product.id} className="bg-neutral-primary-soft block max-w-sm border border-default rounded-base shadow-xs">
+                <div key={product.id} className="bg-neutral-primary-soft block max-w-sm border border-default rounded-base shadow-xs rounded-lg">
                   <Image 
-                    className="rounded-t-base w-full h-60 lg:h-72 bg-cover" 
+                    className="rounded-t-lg w-full h-60 lg:h-72 bg-cover" 
                     src={product.banner_image} 
                     alt="" 
                     width={100} 
@@ -160,40 +101,51 @@ const Transaction : React.FC = () => {
                     unoptimized
                     priority
                     />
-                  <div className="p-6 text-center">
+                  <div className="text-center">
                     <h5 className="mb-2 text-lg font-semibold tracking-tight text-heading">
                       {product.title}
                     </h5>
                     <h5 className="mb-2 text-lg tracking-tight text-heading">
                       {product.cost.toLocaleString('id-ID', {style: 'currency', currency: 'IDR',minimumFractionDigits: 0})}
                     </h5>
-                    <form>
-                      <div className='flex justify-center items-center'>
-                        <button 
-                          type='button'
-                          className="px-5 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition" 
-                          onClick={() => decrease(product.id)}>
-                            -
-                        </button>
-                        <input 
-                          type="number" 
-                          className='no-spinner w-16 h-10 mx-4 text-center border-b-2 border-black' 
-                          min={0}
-                          max={20} 
-                          value={quantities[product.id] || 0} 
-                          name='qty' 
-                          onChange={e => handleChange(product.id,e.target.value)}
-                        />
-                        <button 
-                          type='button'
-                          className="px-4 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition"
-                          onClick={() => increase(product.id,20)}>
-                            +
-                        </button>
-                      </div>
-                      
-                    </form>
-                    
+                    {product.id in quantities ? (
+                      <>
+                        <form>  
+                          <div className='flex justify-center items-center -mt-2'>
+                            <button 
+                              type='button'
+                              className="px-5 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition" 
+                              onClick={() => decrease(product.id)}>
+                                -
+                            </button>
+                            <input 
+                              type="number" 
+                              className='no-spinner w-16 h-10 mx-4 text-center border-b-2 border-black' 
+                              min={0}
+                              max={20} 
+                              value={quantities[product.id] || 0} 
+                              name='qty' 
+                              onChange={e => handleChange(product.id,e.target.value)}
+                            />
+                            <button 
+                              type='button'
+                              className="px-4 py-2 text-lg bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 active:scale-95 transition"
+                              onClick={() => increase(product.id,20)}>
+                                +
+                            </button>
+                          </div>
+                        </form>
+                      </>
+                    ) : (
+                      <button 
+                        onClick={() => {
+                          // setIsEdit(prev => !prev) 
+                          increase(product.id,20)
+                        }}
+                        className='font-sans text-white bg-green-600 box-border border border-transparent hover:bg-green-600/80 focus:ring-4 shadow-xs font-medium leading-5 rounded-md text-sm px-4 py-2.5 focus:outline-none w-full'>
+                        Add to Cart
+                      </button>
+                    )} 
                   </div>
                 </div>
               ))}
