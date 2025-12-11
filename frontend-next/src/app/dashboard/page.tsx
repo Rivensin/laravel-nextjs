@@ -28,7 +28,7 @@ const Dashboard : React.FC = () => {
   const [products,setProducts] = React.useState<ProductType[]>([]);
   const [currentPage,setCurrentPage] = useState<number>(1);
   const [totalPage,setTotalPage] = useState<number>(1);
-  const [limit] = useState(5);
+  const limit = 5;
 
   const [isEdit,setIsEdit] = React.useState<boolean>(false);
   const [isLoading,setIsLoading] = React.useState<boolean>(false);
