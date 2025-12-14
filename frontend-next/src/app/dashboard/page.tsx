@@ -165,7 +165,7 @@ const Dashboard : React.FC = () => {
 
       setProducts(response.data.products);
       setTotalPage(response.data.totalPage);
-      setCurrentPage(page);
+      setCurrentPage(response.data.currentPage);
       
     }catch(error){
       console.log("Error fetching products :", error);
@@ -177,8 +177,8 @@ const Dashboard : React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Left Side: Form */}
         <div>
-          <div className="bg-white shadow-md rounded-lg p-6">
-            <h4 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Product' : 'Add Product'}</h4>
+          <div className="bg-w  hite shadow-md rounded-lg p-6">
+            <h4 className="p-2 text-lg font-semibold mb-4 underline bg-gray-300 rounded-lg text-center">{isEdit ? 'Edit Product' : 'Add Product'}</h4>
 
             <form className="flex flex-col gap-3" onSubmit={handleFormSubmit}>
               <input 
