@@ -150,7 +150,7 @@ const Dashboard : React.FC = () => {
   }
 
   //Fetch All Products
-  const fetchAllProducts = async(page = 1) => {
+  const fetchAllProducts = async(page : number = 1 ) => {
     try{
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/products`,{
         params: {

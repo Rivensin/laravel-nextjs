@@ -13,12 +13,13 @@ class TransactionController extends Controller
 {
     public function index()
     {
-        // $transactions = Transaction::latest()->get();
+        $transactions = Transaction::with('items.product')->latest()->get();
 
-        // return response()->json([
-        //     'status' => true,
-        //     'data' => $transactions,
-        // ]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Product Data Found',
+            'transaction' => $transactions,
+        ]);
     }
 
     /**
@@ -42,14 +43,14 @@ class TransactionController extends Controller
             $total = 0;
 
             foreach($data['items'] as $item){
-                $product = Product::lockForUpdaate()->findOrFail($item['product_id']);
-                $subTotal = $product->price * $item['quantity'];
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                $subTotal = $product->cost * $item['quantity'];
                 $total += $subTotal;
 
                 transactionItem::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $product->id,
-                    'price' => $product->price,
+                    'price' => $product->cost,
                     'quantity' => $item['quantity'],
                     'sub_total' => $subTotal,
                 ]);
@@ -66,6 +67,7 @@ class TransactionController extends Controller
                 'message' => 'Transaction created successfully',
                 'data' => $transaction->load('items'),
             ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -75,6 +77,8 @@ class TransactionController extends Controller
             ], 500);
         }
     }
+   
+
 
     /**
      * Display the specified resource.
