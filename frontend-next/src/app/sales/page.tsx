@@ -48,10 +48,18 @@ const Sales : React.FC = () => {
   }
 
   const handleChange = (id: number,value: number) => {
-    setQuantities(prev => ({
-      ...prev,
+    if(Number(value) === 0){
+      setQuantities(prev => {
+        const updated = {...prev}
+        delete updated[id]
+        return updated
+    })
+    } else {
+    setQuantities(prev => ({ 
+        ...prev,
       [id] : Math.max(0,Math.min(Number(value),20))
-    }))
+      }))
+    }
   }
 
   const increase = (id : number, max: number) => {
@@ -112,19 +120,31 @@ const Sales : React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
         {/* Left Side: Form */}
         <div>
-          <div className="flex xl:h-screen w-full items-center justify-center bg-gray-600 rounded-lg">
-            <div className="w-80 bg-gray-50 px-4 pt-8 shadow-lg">
-              <div className='text-xs flex justify-end hover:underline'>
-                <button type='submit' form='checkout-form' className='bg-yellow-400 px-2'>
+          <div className="flex lg:min-h-screen w-full items-center justify-center bg-gray-600 rounded-lg">
+            <div className="w-80 bg-gray-50 px-4 pt-2 xl:pt-6 shadow-lg">
+              <div className='text-xs flex justify-between pt-2'>
+                <button 
+                  className='bg-red-400 px-2 hover:underline'
+                  onClick={() => setQuantities({})}>
+                  Reset Receipt
+                </button>
+                <button type='submit' form='checkout-form' className='bg-yellow-400 px-2 hover:underline'>
                   Print Receipt
                 </button>
               </div>
-              <Image src="/icons/dlooti.png" alt="chippz" className="mx-auto w-16 py-4" width={100} height={100} unoptimized priority />
+              <Image 
+                src="/icons/dlooti.png" 
+                alt="chippz" 
+                className="mx-auto w-32 h-32 py-4" 
+                width={100} 
+                height={100} 
+                unoptimized 
+                priority />
               <div className="flex flex-col justify-center items-center gap-2">
                   <h4 className="font-semibold">Dlooti</h4>
                   <p className="text-xs">Jl Lily 2 No 49N</p>
               </div>
-              <div className="flex flex-col gap-3 border-b py-6 text-xs">
+              <div className="flex flex-col gap-3 border-b pt-6 text-xs">
                 <p className="flex justify-between">
                   <span className="text-gray-400">Cashier:</span>
                   <span>Rivensin</span>
