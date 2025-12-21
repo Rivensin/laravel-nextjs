@@ -12,7 +12,7 @@ class Product extends Model
         'banner_image',
         'cost',
         'user_id'
-    ];
+    ];  
 
     public function user()
     {

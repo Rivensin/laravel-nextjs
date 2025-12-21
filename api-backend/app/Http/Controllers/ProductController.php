@@ -15,20 +15,21 @@ class ProductController extends Controller
     public function index(Request $request)
     {   
         if($request->pagination == 0){
-            $products = Product::all()->map(function($product){
-            $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
+            $products = Product::orderBy('title', 'asc')
+                ->get()
+                ->map(function($product){
+                    $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;
+                    return $product;
+                });
 
-            return $product;
-            });
-
-            return response()-> json([
-                'status' => true,
-                'products' => $products
-            ]);
+                return response()-> json([
+                    'status' => true,
+                    'products' => $products
+                ]);
         }
 
         $limit = $request->limit ?? 5;
-        $product = Product::paginate($limit);
+        $product = Product::orderBy('created_at', 'asc')->paginate($limit);
 
         $mappedProduct = collect($product->items())->map(function($product){
             $product->banner_image = $product->banner_image ? asset("storage/".$product->banner_image) : null;

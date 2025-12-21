@@ -47,14 +47,13 @@ const Transaction : React.FC = () => {
     }
   }
 
-  console.log("Transaction Data :", transaction);
   return (
     <div className="mt-4 px-2 pb-2">
       <div className="grid lg:grid-cols-5 gap-6">
         {transaction.map(trx => (
         <div key={trx.id}> 
           <div className="flex w-full h-[600px] items-center justify-center bg-gray-600 rounded-lg">
-            <div className="w-80 h-[550px] bg-gray-50 px-4 pt-8 shadow-lg overflow-y-scroll">
+            <div className="w-80 max-h-[550px] bg-gray-50 px-4 pt-8 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400">
               <div className='text-xs flex justify-end hover:underline'>
                 <button type='submit' className='bg-yellow-400 px-2'>
                   Edit Receipt
