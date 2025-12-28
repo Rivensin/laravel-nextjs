@@ -1,8 +1,9 @@
 'use client';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { myAppHook } from '../../../context/AppProvider';
 import Image from 'next/image';
 import axios from 'axios';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
@@ -16,10 +17,10 @@ interface TransactionType{
     price: number;
     quantity: number;
     sub_total: number;
-  product: {
-    id: number;
-    title: string;
-  }
+    product: {
+      id: number;
+      title: string;
+    }
   }[];
 }
 
@@ -55,9 +56,9 @@ const Transaction : React.FC = () => {
           <div className="flex w-full h-[600px] items-center justify-center bg-gray-600 rounded-lg">
             <div className="w-80 max-h-[550px] bg-gray-50 px-4 pt-8 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400">
               <div className='text-xs flex justify-end hover:underline'>
-                <button type='submit' className='bg-yellow-400 px-2'>
-                  Edit Receipt
-                </button>
+                <Link href={`/transaction/details/${trx.id}`} className='bg-yellow-400 px-2'>
+                  Print Receipt
+                </Link>
               </div>
               <Image src="/icons/dlooti.png" 
                 alt="chippz" 
@@ -94,16 +95,16 @@ const Transaction : React.FC = () => {
                           <th className="min-w-[44px] py-2 text-center">Total</th>
                         </tr>
                       </thead>
+                      <tbody>
                       {trx.items.map(item => (
-                        <tbody key={item.id}>
-                        <tr  className="flex justify-center items-center mb-1">
+                        <tr key={item.id} className="flex justify-center items-center mb-1">
                           <td className="flex-1 py-1">{item.product.title}</td>
                           <td className="min-w-[44px] text-center">{item.quantity}</td>
                           <td className="min-w-[54px] text-center">{item.price.toLocaleString('id-ID')}</td>
                           <td className="min-w-[44px] text-center">{item.sub_total.toLocaleString('id-ID')}</td>
                         </tr>
-                        </tbody>
                       ))}
+                      </tbody>
                     </table>
                     <div className="border-b border border-dashed"></div>
                     <div className='flex justify-between'>

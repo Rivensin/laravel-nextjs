@@ -77,18 +77,18 @@ class TransactionController extends Controller
             ], 500);
         }
     }
-   
-
 
     /**
      * Display the specified resource.
      */
     public function show(Transaction $transaction)
     {
-        // return response()->json([
-        //     'status' => true,
-        //     'data' => $transaction,
-        // ]);
+        $transaction->load('items.product');
+
+        return response()->json([
+            'status' => true,
+            'transaction' => $transaction,
+        ]);
     }
 
     /**

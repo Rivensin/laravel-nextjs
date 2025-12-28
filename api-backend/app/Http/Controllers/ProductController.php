@@ -103,7 +103,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $data = $request->validate([
             'title' => 'required'
         ]);
 

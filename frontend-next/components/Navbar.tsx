@@ -57,13 +57,21 @@ function Navbar() {
               </>
             :
               <>
-                <li>
-                  <Link href="/" className="py-2 lg:py-0 block">Home</Link>
-                </li>
-
-                <li>
-                  <Link href="/auth" className="py-2 lg:py-0 block">Login</Link>
-                </li>
+                <Link href="/">
+                  <li className='hover:bg-white p-4 rounded-lg hover:text-blue-600 font-semibold duration-500 transition-all ease-out'>
+                    <div className="py-2 lg:py-0 block">
+                      Home
+                    </div>
+                  </li>
+                </Link>
+                
+                <Link href="/auth">
+                  <li className='hover:bg-white p-4 rounded-lg hover:text-blue-600 font-semibold duration-500 transition-all ease-out'>
+                    <div className="py-2 lg:py-0 block">
+                      Login
+                    </div>
+                  </li>
+                </Link>
               </>
           }
           
