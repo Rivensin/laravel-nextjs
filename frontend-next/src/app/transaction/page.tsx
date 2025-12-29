@@ -55,9 +55,16 @@ const Transaction : React.FC = () => {
         <div key={trx.id}> 
           <div className="flex w-full h-[600px] items-center justify-center bg-gray-600 rounded-lg">
             <div className="w-80 max-h-[550px] bg-gray-50 px-4 pt-8 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400">
-              <div className='text-xs flex justify-end hover:underline'>
-                <Link href={`/transaction/details/${trx.id}`} className='bg-yellow-400 px-2'>
-                  Print Receipt
+              <div className='text-xs flex justify-between'>
+                <Link href={`/sales/${trx.id}`} className='bg-yellow-400 px-2'>
+                  <div className='hover:underline'>
+                    Edit Receipt
+                  </div>
+                </Link>
+                <Link href={`/transaction/details/${trx.id}`} className='bg-green-400 px-2'>
+                  <div className='hover:underline'>
+                    Print Receipt
+                  </div>
                 </Link>
               </div>
               <Image src="/icons/dlooti.png" 

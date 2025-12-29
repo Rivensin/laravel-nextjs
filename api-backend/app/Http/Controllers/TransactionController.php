@@ -83,11 +83,9 @@ class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        $transaction->load('items.product');
-
         return response()->json([
             'status' => true,
-            'transaction' => $transaction,
+            'transaction' => $transaction->load('items.product'),
         ]);
     }
 

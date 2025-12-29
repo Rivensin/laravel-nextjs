@@ -1,9 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react'
-import { myAppHook } from '../../../context/AppProvider';
+import { myAppHook } from '../../../../context/AppProvider';
 import Image from 'next/image';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { useParams } from 'next/navigation';
 
 interface ProductType{
   id?: number;
@@ -18,7 +19,8 @@ interface QuantityType{
   [id : number]: number;
 }
 
-const Sales : React.FC = () => {
+const Sales : React.FC = (props : any) => {
+  const {id} = useParams();
   const {authToken} = myAppHook();
   const [products,setProducts] = React.useState<ProductType[]>([]);
   const [quantities,setQuantities] = React.useState<QuantityType>({});
@@ -29,8 +31,48 @@ const Sales : React.FC = () => {
   
   //Load Page When Auth Token is present
   useEffect(() => {
-    if(authToken) fetchAllProducts();    
+    if(authToken) fetchAllProducts()    
   },[authToken]);
+
+  useEffect(() => {
+    if(!id) return;
+
+    const load = async() => {
+      const result = await findTransactionById(Number(id));
+      if(!result) return;
+      setQuantities(result.quantityMap);
+    }
+
+    load();
+  },[id]);
+
+  const findTransactionById = async(id: number) => {
+    try{
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/transactions/${id}`,{
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },  
+      });
+
+      const transaction = response.data.transaction
+
+      console.log("Transaction fetched by id :", transaction);
+
+      const quantityMap : QuantityType = transaction.items.reduce((acc: QuantityType, item: {product_id: number; quantity: number}) => {
+        acc[item.product_id] = item.quantity;
+        return acc;
+      }, {}
+      );
+
+      return {
+        transaction,
+        quantityMap
+      };
+
+    }catch(error){
+      console.log("Error fetching transaction by id :", error);
+    }
+  }
 
   //Fetch All Products
   const fetchAllProducts = async(page = 1) => {
@@ -63,14 +105,14 @@ const Sales : React.FC = () => {
   }
 
   const increase = (id : number, max: number) => {
-    setQuantities((prev) => ({
+    setQuantities(prev => ({
       ...prev,
       [id]: Math.min((prev[id] || 0) + 1,max)
     }));
   };
 
   const decrease = (id : number) => {
-    setQuantities((prev) => {
+    setQuantities(prev => {
       const newItem = Math.max((prev[id] || 1) - 1,0)
 
       if(newItem === 0){
