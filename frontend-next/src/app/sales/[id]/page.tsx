@@ -4,7 +4,7 @@ import { myAppHook } from '../../../../context/AppProvider';
 import Image from 'next/image';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface ProductType{
   id?: number;
@@ -19,8 +19,9 @@ interface QuantityType{
   [id : number]: number;
 }
 
-const Sales : React.FC = (props : any) => {
+const Sales : React.FC = () => {
   const {id} = useParams();
+  const router = useRouter();
   const {authToken} = myAppHook();
   const [products,setProducts] = React.useState<ProductType[]>([]);
   const [quantities,setQuantities] = React.useState<QuantityType>({});
@@ -55,8 +56,6 @@ const Sales : React.FC = (props : any) => {
       });
 
       const transaction = response.data.transaction
-
-      console.log("Transaction fetched by id :", transaction);
 
       const quantityMap : QuantityType = transaction.items.reduce((acc: QuantityType, item: {product_id: number; quantity: number}) => {
         acc[item.product_id] = item.quantity;
@@ -131,11 +130,11 @@ const Sales : React.FC = (props : any) => {
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     try{
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/transactions`,{
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/transactions/${id}`,{
         items: Object.entries(quantities).filter(([id,qty]) => qty > 0).map(([id,qty]) => ({
           product_id: Number(id),
           quantity: qty
-        }))
+        })), "_method" : "PUT"
       },{
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -143,15 +142,15 @@ const Sales : React.FC = (props : any) => {
       });
       Swal.fire({
         icon: 'success',
-        title: 'Transaction Successful',
-        text: 'The transaction has been recorded successfully.',
+        title: 'Transaction Edited Successfully',
+        text: 'The transaction has been edited successfully.',
       });
-      setQuantities({});
+      router.push('/transaction');
     } catch(error){
-      console.log("Error submitting transaction :", error);
+      console.log("Error editing transaction :", error);
       Swal.fire({
         icon: 'error',
-        title: 'Transaction Failed',
+        title: 'Transaction Edit Failed',
         text: 'There was an error processing the transaction. Please try again.',
       });
     }

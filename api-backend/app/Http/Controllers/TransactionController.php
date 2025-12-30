@@ -94,17 +94,52 @@ class TransactionController extends Controller
      */
     public function update(Request $request, Transaction $transaction)
     {
-        // $validated = $request->validate([
-        //     'total' => 'numeric',
-        // ]);
+        $data = $request->validate([
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
 
-        // $transaction->update($validated);
+        DB::beginTransaction();
+        try {
+            // Delete existing items
+            $transaction->items()->delete();
 
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => 'Transaction updated',
-        //     'data' => $transaction,
-        // ]);
+            $total = 0;
+
+            foreach($data['items'] as $item){
+                $product = Product::lockForUpdate()->findOrFail($item['product_id']);
+                $subTotal = $product->cost * $item['quantity'];
+                $total += $subTotal;
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $product->id,
+                    'price' => $product->cost,
+                    'quantity' => $item['quantity'],
+                    'sub_total' => $subTotal,
+                ]);
+            }
+
+            $transaction->update([
+                'total' => $total
+            ]);
+            
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Transaction updated successfully',
+                'data' => $transaction->load('items'),
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Transaction update failed: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

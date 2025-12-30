@@ -11,8 +11,7 @@ const nextConfig: NextConfig = {
         pathname: '/storage/**',
       },
     ]
-  },
-  reactCompiler: true,
+  }
 };
 
 export default nextConfig;
